@@ -1,0 +1,36 @@
+## The problem
+
+P3L trains wastewater-treatment operators for government certification and consults on treatment plants for factories, hospitals and hotels. Every registration used to arrive over WhatsApp, and every pro-forma invoice was typed by hand so the participant's finance department could pay it. The firm also needed to be found on Google by people searching for this training.
+
+## What I built
+
+- **Public site:** programs, services, a class schedule with filters and syllabi, articles with a generated table of contents, and contact details.
+- **Registration:** one form per class. The participant receives a pro-forma invoice by email straight away and can print it from the browser; the firm gets a notification with a WhatsApp link to the participant.
+- **Admin dashboard:** create and edit classes and articles, track registrations and mark them paid. Public pages refresh as soon as the admin saves.
+- **Search:** metadata and Open Graph images for every page, structured data for the organization, courses, events and FAQ, a sitemap, and `noindex` on pages too thin to rank.
+
+## Decisions that mattered
+
+**The browser never talks to the database.** All Supabase access happens on the server, in server components, the registration route and server actions. Public reads go through a key that row-level security limits to active rows; writes use a service key that can only be imported from server modules, so a mistake fails the build instead of reaching a visitor.
+
+**Personal data is server-only.** The registrations table has no public policy at all. Only the server can read it.
+
+**Prices come from the database.** The browser sends a class ID, nothing more. The title and price on the invoice are read on the server, so a request can't invent its own price.
+
+**The form can't be used for phishing.** What a visitor types is printed in an email sent from the firm's address, so name, institution and address fields reject links and markup, and everything is escaped in the email.
+
+**Rate limits that work on serverless.** Registrations are limited per IP, per email and overall, and admin logins per IP and overall. The counters live in Postgres, so they hold across Vercel instances and cold starts, and fall back to memory if the database is unreachable. IPv6 addresses are grouped by their /64 block, because one customer usually holds a whole block and could otherwise rotate addresses to reset the limit.
+
+**The real admin can't be locked out.** A successful login marks the device as trusted for 90 days, and a trusted device skips the global login limit. Someone guessing passwords from many IPs can't lock the owner out. Changing the password revokes every trusted device.
+
+## Testing
+
+The registration route is tested for real with its database, rate limiter and email replaced by fakes: the origin check, body-size cap, honeypot, every validation rule, the rate-limit response, closed and unknown classes, and the 24-hour duplicate-invoice guard. Client-IP parsing and the admin session have their own suites. Lint, typecheck, tests and a production build run in CI on every push.
+
+## Publishing the code
+
+The production repository is private because it holds the firm's bank details, client list and photos. I publish a separate showcase that a script builds from it: it exports the tracked files, replaces business and personal data with fictional values, and refuses to finish if any real identifier is still present. It caught three leaks in file names on its first run.
+
+## What I'd build next
+
+Individual admin accounts instead of one shared password, online payment so the invoice can be paid on the spot, and certificates generated when a participant passes.

@@ -1,0 +1,67 @@
+## The problem
+
+A small food stall in Indonesia tracks its sales on paper or not at all. The owner wants to know what sold and how much came in today; the cashiers want something faster than a notebook and a calculator. The point-of-sale apps on the market want a monthly fee, a tablet, or a connection that never drops, and a roadside warung has none of those.
+
+## Constraints
+
+- **No running cost.** No server to rent: a static site on Cloudflare Pages and the Supabase free tier.
+- **A cheap Android phone** is the cashier's only device. Everything is designed for a 360-pixel-wide screen and installs as a PWA.
+- **The signal drops.** A sale must never be lost and never be counted twice.
+- **Two roles with different trust.** The owner sees everything. A cashier sells and sees their own history, and the database enforces that, not only the screen.
+
+<Phones
+  caption="Cashier flow on a phone: menu with a running cart, choosing a spice level and toppings, taking payment with quick cash amounts, and the owner's daily report."
+  shots={[
+    { src: '/work/warung-kasir/kasir.png', alt: 'Menu grid with item counts and a cart total of Rp46.000', width: 780, height: 1688 },
+    { src: '/work/warung-kasir/opsi.png', alt: 'Options sheet for Nasi Goreng with spice level and extra toppings', width: 780, height: 1688 },
+    { src: '/work/warung-kasir/bayar.png', alt: 'Payment screen showing Rp50.000 received and Rp4.000 change', width: 780, height: 1688 },
+    { src: '/work/warung-kasir/laporan.png', alt: 'Report with revenue, transactions, items sold and an hourly sales chart', width: 780, height: 1688 },
+  ]}
+/>
+
+## How it works
+
+Checkout does exactly one thing, online or offline: it writes the sale to an outbox in IndexedDB with `strict` durability, so the sale survives a crash or a dead battery from the moment the success screen appears. A background sync agent sends the outbox to the server later. There is no separate "offline mode", because there is only one path.
+
+Each sale carries a UUID generated on the phone. The outbox write and the server's `create_transaction` function are both idempotent on that ID, so a double tap, a retry after a timeout, or a response lost on the way back can never turn one sale into two.
+
+When a sync fails, the agent decides whether trying again can help:
+
+- **Transient** (no network, timeout, server error, expired token): keep the sale pending and retry with backoff.
+- **Permanent** (the server rejected the sale itself): keep it on the phone, mark it failed, and let a person retry it.
+- **Session** (the account was signed out on the server): sign in again first. The outbox is never touched.
+
+The server checks every line's arithmetic and the total, refuses products from another store, and refuses a sale ID that belongs to another cashier. It deliberately accepts the price the phone had cached, because an offline sale may legitimately use the menu from before a price change. That trade-off is written down as an accepted risk rather than hidden.
+
+Authorization lives in Postgres row-level security. Creating, deactivating and resetting cashier accounts needs Supabase's privileged Auth API, so it goes through an Edge Function that checks the caller is the store's active owner inside its own code, and rolls back a half-created account if a later step fails.
+
+<Figure
+  src="/work/warung-kasir/laporan-desktop.png"
+  alt="Owner report on a laptop with a sidebar of management pages"
+  width={1920}
+  height={1200}
+  caption="The same app on a laptop, where the owner manages the menu, employees and exports."
+/>
+
+## Testing
+
+I wrote the product requirements, technical specification, database design, threat model and test plan before writing code, and kept them current as the app changed.
+
+| Layer | Tooling | Size |
+|---|---|---|
+| Unit and component | Vitest, Testing Library | 1,094 tests |
+| Database: schema, grants, RLS, the sale function | pgTAP | 365 assertions |
+| Edge Function over real HTTP | Vitest on the local stack | 21 tests |
+| End to end on three phone widths, desktop Chrome, Edge, the production build, and offline | Playwright | 726 runs |
+
+Continuous integration replays every migration on an empty database and runs the pgTAP suite on each push.
+
+## Results
+
+- In daily use at a food stall since October 2026.
+- Tested on a real phone: install, sell offline, kill the app, reconnect, and the sale syncs once.
+- Runs at zero monthly cost.
+
+## What I'd build next
+
+Stock levels that go down with each sale, QRIS payments, and support for an owner with more than one stall.
