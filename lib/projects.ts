@@ -40,6 +40,33 @@ export const projects: Project[] = [
   },
 ]
 
+/** Built and tested, but not running for a real business. */
+export const otherProjects: Project[] = [
+  {
+    slug: 'indo-short-answer-scoring',
+    name: 'Indonesian short-answer scoring',
+    summary:
+      "Scores students' short answers from 0 to 5 against the teacher's reference answer and shows the evidence behind each score. Evaluated on questions the model has never seen, after I found and fixed data leakage in my first version.",
+    status: 'QWK 0.57 on 6 unseen test questions',
+    stack: ['Python', 'scikit-learn', 'sentence-transformers', 'IndoBERT', 'FastAPI', 'Docker', 'pytest'],
+    links: [{ label: 'Read the code', href: 'https://github.com/vacelni/indo-short-answer-scoring' }],
+    caseStudy: false,
+  },
+  {
+    slug: 'smart-kebaya-pattern',
+    name: 'Smart Kebaya pattern drafting',
+    summary:
+      'Drafts a made-to-measure kebaya pattern from 15 body measurements and draws every piece to scale, from one Kotlin codebase for Android and the web. Built during an internship for a fashion-design course.',
+    status: 'Android app and web app',
+    stack: ['Kotlin', 'Compose Multiplatform', 'Kotlin/Wasm', 'Compose Canvas', 'Android PDF'],
+    links: [
+      { label: 'Try it in the browser', href: 'https://vacelni.github.io/smart-kebaya-pattern/' },
+      { label: 'Read the code', href: 'https://github.com/vacelni/smart-kebaya-pattern' },
+    ],
+    caseStudy: false,
+  },
+]
+
 export type Research = {
   title: string
   summary: string

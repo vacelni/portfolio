@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Receipt } from '@/components/Receipt'
-import { contact, experience, projects, research } from '@/lib/projects'
+import { contact, experience, otherProjects, projects, research, type Project } from '@/lib/projects'
 
 export default function HomePage() {
   return (
@@ -39,31 +39,18 @@ export default function HomePage() {
         </h2>
         <ul className="mt-8">
           {projects.map((project) => (
-            <li
-              key={project.slug}
-              className="grid gap-4 border-b border-rule py-10 first:pt-2 md:grid-cols-[14rem_1fr] md:gap-10"
-            >
-              <div>
-                <h3 className="text-lg leading-snug font-bold">{project.name}</h3>
-                <p className="mt-1 text-sm text-muted">{project.status}</p>
-              </div>
-              <div className="max-w-[40rem]">
-                <p>{project.summary}</p>
-                <p className="mt-3 text-sm text-muted">{project.stack.join(', ')}</p>
-                <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
-                  {project.caseStudy && (
-                    <li>
-                      <Link href={`/work/${project.slug}`}>Read the case study</Link>
-                    </li>
-                  )}
-                  {project.links.map((link) => (
-                    <li key={link.href}>
-                      <a href={link.href}>{link.label}</a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </li>
+            <ProjectRow key={project.slug} project={project} />
+          ))}
+        </ul>
+      </section>
+
+      <section aria-labelledby="other" className="border-t border-rule py-16">
+        <h2 id="other" className="text-xl font-bold">
+          Other projects
+        </h2>
+        <ul className="mt-8">
+          {otherProjects.map((project) => (
+            <ProjectRow key={project.slug} project={project} />
           ))}
           <li className="grid gap-4 py-10 md:grid-cols-[14rem_1fr] md:gap-10">
             <div>
@@ -104,5 +91,32 @@ export default function HomePage() {
         </p>
       </footer>
     </main>
+  )
+}
+
+function ProjectRow({ project }: { project: Project }) {
+  return (
+    <li className="grid gap-4 border-b border-rule py-10 first:pt-2 md:grid-cols-[14rem_1fr] md:gap-10">
+      <div>
+        <h3 className="text-lg leading-snug font-bold">{project.name}</h3>
+        <p className="mt-1 text-sm text-muted">{project.status}</p>
+      </div>
+      <div className="max-w-[40rem]">
+        <p>{project.summary}</p>
+        <p className="mt-3 text-sm text-muted">{project.stack.join(', ')}</p>
+        <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+          {project.caseStudy && (
+            <li>
+              <Link href={`/work/${project.slug}`}>Read the case study</Link>
+            </li>
+          )}
+          {project.links.map((link) => (
+            <li key={link.href}>
+              <a href={link.href}>{link.label}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </li>
   )
 }
