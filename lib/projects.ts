@@ -19,7 +19,10 @@ export const projects: Project[] = [
       'Point-of-sale app for small food stalls that keeps selling with the internet down and syncs every sale exactly once when it comes back. Prints receipts to Bluetooth thermal printers from the browser.',
     status: 'In daily use at a food stall since October 2026',
     stack: ['Next.js', 'TypeScript', 'Supabase', 'Postgres RLS', 'IndexedDB', 'PWA', 'Playwright', 'pgTAP'],
-    links: [{ label: 'Try the demo', href: 'https://warungkasir-demo.pages.dev' }],
+    links: [
+      { label: 'Try the demo', href: 'https://warungkasir-demo.pages.dev' },
+      { label: 'Read the code', href: 'https://github.com/vacelni/warung-kasir' },
+    ],
     caseStudy: true,
   },
   {
