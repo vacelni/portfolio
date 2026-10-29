@@ -43,6 +43,16 @@ export const projects: Project[] = [
 /** Built and tested, but not running for a real business. */
 export const otherProjects: Project[] = [
   {
+    slug: 'machinewatch',
+    name: 'MachineWatch',
+    summary:
+      "Predicts how many cycles each jet engine in a fleet has left from its sensor stream, and ranks the fleet by urgency on a live dashboard. A model registry refuses to ship a model that scores worse than the one in service.",
+    status: 'RMSE 14.5 cycles on the NASA C-MAPSS FD001 test set',
+    stack: ['Python', 'scikit-learn', 'FastAPI', 'server-sent events', 'SQLite', 'Docker Compose', 'pytest'],
+    links: [{ label: 'Read the code', href: 'https://github.com/vacelni/machinewatch' }],
+    caseStudy: false,
+  },
+  {
     slug: 'indo-short-answer-scoring',
     name: 'Indonesian short-answer scoring',
     summary:
