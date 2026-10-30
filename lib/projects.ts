@@ -43,6 +43,19 @@ export const projects: Project[] = [
 /** Built and tested, but not running for a real business. */
 export const otherProjects: Project[] = [
   {
+    slug: 'relasi-crm',
+    name: 'Relasi CRM',
+    summary:
+      'Multi-tenant CRM for small Indonesian sales teams: contacts, deal pipeline, tasks and a WhatsApp-first activity log, with owner and sales roles enforced in Postgres. Scores leads and drafts follow-ups, falling back to rules when no AI key is set, and takes Pro upgrades through Midtrans.',
+    status: 'Live demo with Midtrans sandbox payments',
+    stack: ['Next.js', 'TypeScript', 'Supabase', 'Postgres RLS', 'Server Actions', 'Midtrans', 'Playwright', 'pgTAP'],
+    links: [
+      { label: 'Try the demo', href: 'https://relasicrm.vercel.app' },
+      { label: 'Read the code', href: 'https://github.com/vacelni/relasi-crm' },
+    ],
+    caseStudy: false,
+  },
+  {
     slug: 'machinewatch',
     name: 'MachineWatch',
     summary:
